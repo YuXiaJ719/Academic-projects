@@ -2,7 +2,7 @@
   - requests
   - bs4
   - pickle
-  - pandas_datareader
+  - pandas_datareader (version == 0.5.0)
   - datetime
   
 Running "StockNames.py" will automatically collect s&p 500 tickers' codes and saved it in "s&p500tickerscode.pickle" in current directory.
