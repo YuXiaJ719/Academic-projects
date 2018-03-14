@@ -8,7 +8,6 @@ Defining the functions used to calculate different technical indicators
 which will be used as training features.
 """
 
-import pickle
 import numpy as np
 
 path = './stocks data/StocksData.pickle'
