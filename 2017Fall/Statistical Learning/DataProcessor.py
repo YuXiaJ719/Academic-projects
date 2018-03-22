@@ -10,14 +10,6 @@ which will be used as training features.
 
 import numpy as np
 
-path = './stocks data/StocksData.pickle'
-
-return_period = 1
-label_return_period = 5
-rolling_day = 30
-annualized_return = 0.08
-threshold = annualized_return /(365 / label_return_period)
-
 # exponiential moving average of return
 def EMA(ret, days):
     ret = ret.values
@@ -71,17 +63,16 @@ def AroonIndex(close, d):
     return aroon_up, aroon_down
     
 # Integrating all functions and return the dataframe
-def createData(df):
-    return_period = 1
-    label_return_period = 5
-    rolling_day = 30
-    annualized_return = 0.08
+def createData(df, label_return_period=10, rolling_day = 30, annualized_return=0.08):
+    label_return_period = label_return_period
+    rolling_day = rolling_day
+    annualized_return = annualized_return
     threshold = annualized_return /(365 / label_return_period)
     
-    df.dropna(how="any", axis=0, inplace=True)
-    df.set_index("Date", drop=True, inplace=True)
+    df = df.dropna(how="any", axis=0)
+    df = df.set_index("Date", drop=True)
     
-    df["Return"] = df["Close"].pct_change(periods=return_period)
+    df["Return"] = df["Close"].pct_change()
     df["MeanReturn"] = df["Return"].rolling(window=rolling_day).mean()
     df["STD"] = df["Return"].rolling(window=rolling_day).std()
     df["d-Day-SharpeRatio"] = df["MeanReturn"] / df["STD"]
@@ -91,12 +82,12 @@ def createData(df):
     df["40DayMean"] = df["Close"].rolling(window=40).mean()
     df["BBUP"], df["BBDN"] = BollingerBands(df["Close"], rolling_day)
     df["AroonUp"], df["AroonDown"] = AroonIndex(df["Close"], rolling_day)
-    
-    df.dropna(how="any", axis=0, inplace=True)
+    df = df.dropna(how="any", axis="rows")
     
     df["EMA 12"] = EMA(df["Return"], 12)
     df["EMA 26"] = EMA(df["Return"], 26)
-    df["Label"] = (df["Close"].pct_change(label_return_period).fillna(0).values > threshold) + 0
-    df = df.iloc[label_return_period:]
+    df["Label"] = ((df["Close"].pct_change(label_return_period).dropna().values > threshold) + 0).tolist() + label_return_period*[np.NAN]
+    
+    df.dropna(how="any", axis="rows", inplace=True)
     
     return df
