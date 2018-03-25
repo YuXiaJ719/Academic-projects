@@ -91,30 +91,3 @@ def createData(df, label_return_period=10, rolling_day = 30, annualized_return=0
     df.dropna(how="any", axis="rows", inplace=True)
     
     return df
-
-def createBackTestData(df, label_return_period=10, rolling_day = 30, annualized_return=0.08):
-    label_return_period = label_return_period
-    rolling_day = rolling_day
-    annualized_return = annualized_return
-    threshold = annualized_return /(365 / label_return_period)
-    
-    df = df.dropna(how="any", axis=0)
-    df = df.set_index("Date", drop=True)
-    
-    df["Return"] = df["Close"].pct_change()
-    df["MeanReturn"] = df["Return"].rolling(window=rolling_day).mean()
-    df["STD"] = df["Return"].rolling(window=rolling_day).std()
-    df["d-Day-SharpeRatio"] = df["MeanReturn"] / df["STD"]
-    df["VolumeRatio"] = Volume_Ratio(df["Volume"], rolling_day)
-    df["10DayMean"] = df["Close"].rolling(window=10).mean()
-    df["20DayMean"] = df["Close"].rolling(window=20).mean()
-    df["40DayMean"] = df["Close"].rolling(window=40).mean()
-    df["BBUP"], df["BBDN"] = BollingerBands(df["Close"], rolling_day)
-    df["AroonUp"], df["AroonDown"] = AroonIndex(df["Close"], rolling_day)
-    df = df.dropna(how="any", axis="rows")
-    df["EMA 12"] = EMA(df["Return"], 12)
-    df["EMA 26"] = EMA(df["Return"], 26)
-    df.dropna(how="any", axis="rows", inplace=True)
-    
-    return df
-    
